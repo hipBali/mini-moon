@@ -64,7 +64,7 @@ modules = {
 
 ---
 
-## 🎛Oscillator Parameters
+## Oscillator Parameters
 
 | Parameter    | Type   | Description                            |
 | ------------ | ------ | -------------------------------------- |
