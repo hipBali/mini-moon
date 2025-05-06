@@ -4,7 +4,7 @@ Mini-Moon enables advanced sound shaping via a dynamic, scriptable modulation ma
 
 ---
 
-## 🎛 Standard LFO Assignments
+## Standard LFO Assignments
 
 Each LFO can be assigned to a built-in modulation path using the `assignment` field:
 
@@ -12,7 +12,7 @@ Each LFO can be assigned to a built-in modulation path using the `assignment` fi
 assignment = LFOAssignment.OscPitch
 ```
 
-### 🎚 Supported `LFOAssignment` Enums:
+### Supported `LFOAssignment` Enums:
 
 * `None` (no built-in modulation)
 * `OscPitch`
@@ -25,7 +25,7 @@ assignment = LFOAssignment.OscPitch
 
 ---
 
-## ⏱ Sync to Tempo
+## Sync to Tempo
 
 Each LFO can optionally be synchronized to the host tempo by setting:
 
@@ -38,7 +38,7 @@ When `syncToTempo` is true, the `frequency` is ignored and `division` is used in
 
 ---
 
-## 🧠 Scripted Modulation via LFO Callbacks
+## Scripted Modulation via LFO Callbacks
 
 To build a modulation matrix in Lua, define a `callback` table inside each LFO. This allows full control over any parameter:
 
@@ -51,7 +51,7 @@ callback = {
 }
 ```
 
-### 🔢 Callback Arguments
+### Callback Arguments
 
 * `lfoName` – the LFO's `name`
 * `value` – current LFO output in range `[-1.0 .. 1.0]`
@@ -59,11 +59,11 @@ callback = {
 
 This mechanism forms the basis of a programmable modulation matrix.
 
-> ⚠️ Avoid redundancy: do not combine a standard assignment with a callback affecting the same parameter.
+> Avoid redundancy: do not combine a standard assignment with a callback affecting the same parameter.
 
 ---
 
-## 🧩 Target-Aware Routing
+## Target-Aware Routing
 
 Each LFO can include a `target` field, used freely inside its callback:
 
@@ -86,9 +86,9 @@ Each LFO can include a `target` field, used freely inside its callback:
 
 ---
 
-## 🎨 Creative LFO Callback Ideas
+## Creative LFO Callback Ideas
 
-### 🎚️ 1. Animated Effect Parameters
+### 🎚1. Animated Effect Parameters
 
 ```lua
 effect.set{ name = "Reverb", mix = 0.4 + 0.3 * value }
@@ -96,7 +96,7 @@ effect.set{ name = "Flanger", delay = 0.5 + 1.0 * value }
 effect.set{ name = "Chorus", rate = 0.1 + 0.05 * value, depth = 0.2 + 0.3 * value }
 ```
 
-### 🔊 2. Panning, Vibrato, Tremolo
+### 2. Panning, Vibrato, Tremolo
 
 ```lua
 oscillator.set{ name = "OSC-1", pan = value }
@@ -104,14 +104,14 @@ master.set{ gain = 0.5 + 0.5 * value }
 oscillator.set{ name = "OSC-1", pwm = 0.4 + 0.3 * value }
 ```
 
-### 🧪 3. Combined Modulations
+### 3. Combined Modulations
 
 ```lua
 oscillator.set{ name = "OSC-2", fm_amount = 0.2 + 0.2 * value }
 effect.set{ name = "Distortion", bitDepth = math.floor(4 + 4 * (1 - value)) }
 ```
 
-### 🌪 4. Global AutoPan with Dynamic Speed
+### 4. Global AutoPan with Dynamic Speed
 
 ```lua
 {
@@ -146,7 +146,7 @@ effect.set{ name = "Distortion", bitDepth = math.floor(4 + 4 * (1 - value)) }
 
 Creates a breathing ping-pong effect where the stereo pan accelerates and decelerates.
 
-### 🎯 5. Dynamic Target Routing
+### 5. Dynamic Target Routing
 
 ```lua
 callback = {
@@ -159,7 +159,7 @@ callback = {
 
 ---
 
-## 🧠 Modulation Shaping Techniques
+## Modulation Shaping Techniques
 
 You can use any Lua math and logic in a callback:
 
@@ -174,21 +174,21 @@ Great for adding soft curves, symmetry, or gated behaviors.
 
 ---
 
-## 🛠 Live Parameters You Can Modulate
+## Live Parameters You Can Modulate
 
-### 🎚 Oscillator
+### Oscillator
 
 * `mix`, `pwm`, `fm_amount`, `phase`, `pan`, `transpose`
 
-### 🔊 Filter
+### Filter
 
 * `cutoff`, `resonance`, `gain`, `slope`, `bypass`
 
-### 🌊 Effect
+### Effect
 
 * `mix`, `depth`, `rate`, `delay`, `feedback`, `threshold`, `bitDepth`, `pan`, etc.
 
-### 🎧 Master
+### Master
 
 * `gain`, `tempo`, `pan`
 
@@ -203,7 +203,7 @@ filter.update{ name = "LPF", cutoff = 1200 }
 
 ---
 
-## 🚫 Known Modulation Limitations
+## Known Modulation Limitations
 
 While most parameters are modulateable in real time, a few are statically applied at note-on time and do not respond to live updates. Notable examples:
 
@@ -220,7 +220,7 @@ For consistent real-time control, prefer modulating parameters on:
 
 ---
 
-## ⚠ Known Limitations
+## Known Limitations
 
 * Overlapping modulations to the same parameter from multiple LFOs may cause unpredictable results.
 * If a callback targets an invalid module name or parameter, the call may silently fail or be ignored.
@@ -229,7 +229,7 @@ For consistent real-time control, prefer modulating parameters on:
 
 ---
 
-## 🌐 Example: Dual LFO Setup
+## Example: Dual LFO Setup
 
 ```lua
 lfo = {
@@ -259,7 +259,7 @@ lfo = {
 
 ---
 
-## 🧷 Summary
+## Summary
 
 | Feature            | Description                                    |
 | ------------------ | ---------------------------------------------- |
