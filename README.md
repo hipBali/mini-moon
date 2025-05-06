@@ -28,8 +28,6 @@ See the following docs for details:
 * **[Example Preset](doc/Example-Preset.md)** – annotated dual LFO patch with dynamic tempo sync
 * **[Preset Editor](tools/Preset-Editor.md)** – visual web-based preset designer tool
 
-![Preset Editor Screenshot](assets/preset-editor.png)
-
 ---
 
 ## Build & Platform Notes
