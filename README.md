@@ -62,8 +62,8 @@ See the following docs for details:
 
 ---
 
-## 💡 License
+## License
 
-Public domain / Unlicense — use, modify, embed freely.
+Unlicense — use, modify, embed freely.
 
 If you build something cool with it, let us know!
