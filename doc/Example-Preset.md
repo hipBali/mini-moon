@@ -4,7 +4,7 @@ This example demonstrates how to use an LFO to create a ping-pong style auto-pan
 
 ---
 
-## 🎯 Goal
+## Goal
 
 Create an LFO that:
 
@@ -14,7 +14,7 @@ Create an LFO that:
 
 ---
 
-## 🛠 Setup
+## Setup
 
 We’ll use:
 
@@ -23,7 +23,7 @@ We’ll use:
 
 ---
 
-## 📦 Full Lua Preset Snippet
+## Full Lua Preset Snippet
 
 ```lua
 lfo = {
@@ -61,7 +61,7 @@ lfo = {
 
 ---
 
-## 🔍 Explanation
+## Explanation
 
 * The **PingPongLFO** controls stereo position via `pan` using a sine waveform.
 * The **SpeedModLFO** modulates its `frequency` between 0.25 Hz and 4 Hz in a triangle pattern.
@@ -69,7 +69,7 @@ lfo = {
 
 ---
 
-## 🎧 Tips for Customization
+## Tips for Customization
 
 * Try using `LFOWaveform.Saw` on the SpeedModLFO for an accelerating drop effect.
 * Replace `oscillator.set` with `effect.set` if you want to pan a chorus or delay module.
