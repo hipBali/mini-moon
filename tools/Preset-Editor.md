@@ -4,14 +4,14 @@ This tool provides a browser-based, platform-independent interface for creating 
 
 ---
 
-## ✨ Features
+## Features
 
 - Add and configure:
-  - 🎚️ Oscillators (type, gain, detune, pan, etc.)
-  - 🔁 LFOs (target assignment, waveform, sync, depth)
-  - 🎛️ Filters (type, cutoff, resonance — order-sensitive)
-  - 🎧 Effects (chained with drag-reorder and full parameter sets)
-  - 🎚️ Master settings (gain, pan, tempo, pitch, glide)
+  - 🎚Oscillators (type, gain, detune, pan, etc.)
+  - LFOs (target assignment, waveform, sync, depth)
+  - Filters (type, cutoff, resonance — order-sensitive)
+  - Effects (chained with drag-reorder and full parameter sets)
+  - 🎚Master settings (gain, pan, tempo, pitch, glide)
 
 - Live Lua code generation
 - JSON export & import
@@ -20,14 +20,14 @@ This tool provides a browser-based, platform-independent interface for creating 
 
 ---
 
-## 📦 Files
+## Files
 
 - `Preset-Editor.html` — Self-contained UI (HTML + JS)
 - Presets are stored as `.json` and convertible to Lua
 
 ---
 
-## 🚀 How to Use
+## How to Use
 
 1. Open `Preset-Editor.html` in any modern browser.
 2. Add synth components using the provided buttons.
@@ -40,7 +40,7 @@ This tool provides a browser-based, platform-independent interface for creating 
 
 ---
 
-## 🔁 Lua Integration
+## Lua Integration
 
 ### Example output:
 ```lua
