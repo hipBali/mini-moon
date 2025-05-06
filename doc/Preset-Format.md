@@ -26,7 +26,8 @@ The core of every preset is a table (or JSON object) called `modules`, which con
 
 ## Full Example
 
-** JSON **
+### JSON
+
 ```json
 {
   "modules": {
@@ -76,7 +77,8 @@ The core of every preset is a table (or JSON object) called `modules`, which con
 }
 ```
 
-** LUA **
+### LUA 
+
 ```lua
 modules = {
   oscillator = {
@@ -152,7 +154,7 @@ modules = {
 | `assignment` | enum   | See `LFOAssignment` below    |
 | `bypass`     | bool   | If true, the LFO is bypassed |
 
-### 🎚 LFOWaveform (enum)
+### LFOWaveform (enum)
 
 * `Sine`
 * `Triangle`
