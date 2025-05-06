@@ -88,7 +88,7 @@ Each LFO can include a `target` field, used freely inside its callback:
 
 ## Creative LFO Callback Ideas
 
-### 🎚1. Animated Effect Parameters
+### 1. Animated Effect Parameters
 
 ```lua
 effect.set{ name = "Reverb", mix = 0.4 + 0.3 * value }
