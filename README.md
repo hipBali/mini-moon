@@ -26,7 +26,7 @@ See the following docs for details:
 * **[Scripting Reference](doc/Lua_Scripting_Guide.md)** – Lua API for MIDI input, note events, controller handling, and custom logic
 * **[Modulation Matrix](doc/Modulation.md)** – callback-based LFO routing and creative modulation ideas
 * **[Example Preset](doc/Example-Preset.md)** – annotated dual LFO patch with dynamic tempo sync
-* **[Preset Editor](tools/Preset-Editor.md)** – visual web-based preset designer (public domain)
+* **[Preset Editor](tools/Preset-Editor.md)** – visual web-based preset designer tool
 
 ![Preset Editor Screenshot](assets/preset-editor.png)
 
