@@ -60,4 +60,4 @@ modules = {
 }
 ```
 
-![Preset Editor Screenshot](preset-editor.png)
+![Preset Editor Screenshot](../assets/preset-editor.png)
