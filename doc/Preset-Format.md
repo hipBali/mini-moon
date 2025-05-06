@@ -4,7 +4,7 @@ This document describes the structure and content of Mini-Moon presets, supporti
 
 ---
 
-## 📦 Preset Structure Overview
+## Preset Structure Overview
 
 Mini-Moon supports three preset modes:
 
@@ -24,7 +24,7 @@ The core of every preset is a table (or JSON object) called `modules`, which con
 
 ---
 
-## 🧱 Full Example (Lua-style)
+## Full Example (Lua-style)
 
 ```lua
 modules = {
@@ -64,7 +64,7 @@ modules = {
 
 ---
 
-## 🎛️ Oscillator Parameters
+## 🎛Oscillator Parameters
 
 | Parameter    | Type   | Description                            |
 | ------------ | ------ | -------------------------------------- |
@@ -79,7 +79,7 @@ modules = {
 | `fm_amount`  | float  | Amount of frequency modulation input   |
 | `mod_source` | string | Modulation source name (e.g., `LFO-1`) |
 
-### 🎚 OscillatorType (enum)
+### OscillatorType (enum)
 
 * `Sine`
 * `Square`
@@ -90,7 +90,7 @@ modules = {
 
 ---
 
-## 🌊 LFO Parameters
+## LFO Parameters
 
 | Parameter    | Type   | Description                  |
 | ------------ | ------ | ---------------------------- |
@@ -108,7 +108,7 @@ modules = {
 * `Square`
 * `Saw`
 
-### 🎯 LFOAssignment (enum)
+### LFOAssignment (enum)
 
 * `None`
 * `OscGain`
@@ -118,7 +118,7 @@ modules = {
 
 ---
 
-## 🔁 Filter Parameters
+## Filter Parameters
 
 Each filter has:
 
@@ -126,7 +126,7 @@ Each filter has:
 * `type` (see `FilterType`)
 * `bypass` (bool)
 
-### 🔽 FilterType (enum)
+### FilterType (enum)
 
 * `LowPass`
 * `HighPass`
@@ -136,7 +136,7 @@ Each filter has:
 
 ---
 
-## 🎧 EffectType (enum) & Parameters
+## EffectType (enum) & Parameters
 
 All effect entries share:
 
@@ -155,7 +155,7 @@ All effect entries share:
 | `Limiter`    | `threshold`, `attack`, `release`                                       |
 | `NoiseGate`  | `threshold`, `attack`, `release`                                       |
 
-### 🔊 DistortionType (enum)
+### DistortionType (enum)
 
 * `HardClip`
 * `SoftClip`
@@ -170,7 +170,7 @@ All effect entries share:
 
 ---
 
-## 🔊 Envelope Parameters
+## Envelope Parameters
 
 | Parameter | Type  | Description             |
 | --------- | ----- | ----------------------- |
@@ -181,7 +181,7 @@ All effect entries share:
 
 ---
 
-## 🎚 Master Parameters
+## Master Parameters
 
 | Parameter | Type  | Description                     |
 | --------- | ----- | ------------------------------- |
