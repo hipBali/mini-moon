@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini-Moon Preset Editor</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      margin: 0;
+    }
+    .panel {
+      padding: 1rem;
+      overflow: auto;
+    }
+    #editor {
+      flex: 1;
+      background: #111;
+      color: #10b020;
+      padding: 1rem;
+      font-family: monospace;
+      white-space: pre;
+    }
+    #form {
+      width: 350px;
+      background: #a0b0a0;
+    }
+    label, input, select, button {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+    summary {
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    details {
+      margin-bottom: 1rem;
+    }
+	.button-row {
+	   display: flex;
+	   gap: 0.5rem;
+	   margin-bottom: 1rem;
+	   flex-wrap: wrap;
+	}
+	.button-like {
+	   display: inline-block;
+	   padding: 0.5rem 1rem;
+	   background-color: #444;
+	   color: #fff;
+	   border: none;
+	   border-radius: 4px;
+	   cursor: pointer;
+	   font-size: 12px;
+	   transition: background-color 0.2s;
+	}
+	.button-like:hover {
+	   background-color: #666;
+	}
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <div id="form" class="panel">
+    <details open>
+      <summary>Oscillators</summary>
+      <div id="oscillators"></div>
+      <button onclick="addOscillator()">Add Oscillator</button>
+    </details>
+	
+	<details>
+      <summary>LFOs</summary>
+      <div id="lfos"></div>
+      <button onclick="addLFO()">Add LFO</button>
+    </details>
+
+    <details>
+      <summary>Envelope (ADSR)</summary>
+      <div class="slider-label"><label for="envAttack">Attack:</label><span id="envAttackVal">0.1</span></div>
+      <input type="range" id="envAttack" min="0" max="5" step="0.1" value="0.1" oninput="updateLua()" />
+
+      <div class="slider-label"><label for="envDecay">Decay:</label><span id="envDecayVal">0.3</span></div>
+      <input type="range" id="envDecay" min="0" max="5" step="0.1" value="0.3" oninput="updateLua()" />
+
+      <div class="slider-label"><label for="envSustain">Sustain:</label><span id="envSustainVal">0.8</span></div>
+      <input type="range" id="envSustain" min="0" max="1" step="0.1" value="0.8" oninput="updateLua()" />
+
+      <div class="slider-label"><label for="envRelease">Release:</label><span id="envReleaseVal">1.2</span></div>
+      <input type="range" id="envRelease" min="0" max="5" step="0.1" value="1.2" oninput="updateLua()" />
+    </details>
+	
+	<details>
+	  <summary>Filters</summary>
+	  <div id="filters"></div>
+	  <button onclick="addFilter()">Add Filter</button>
+	</details>
+
+	<details>
+	  <summary>Effects</summary>
+	  <div id="effects"></div>
+	  <button onclick="addEffect()">Add Effect</button>
+	</details>
+	
+    <details>
+      <summary>Master</summary>
+      <div class="slider-label"><label for="masterGain">Master Gain:</label><span id="masterGainVal">0.9</span></div>
+      <input type="range" id="masterGain" min="0" max="1" step="0.05" value="0.9" oninput="updateLua(); masterGainVal.textContent = this.value" />
+
+      <div class="slider-label"><label for="masterPan">Pan:</label><span id="masterPanVal">0</span></div>
+      <input type="range" id="masterPan" min="-1" max="1" step="0.1" value="0" oninput="updateLua(); masterPanVal.textContent = this.value" />
+
+      <div class="slider-label"><label for="masterGlideTime">Glide Time:</label><span id="masterGlideTimeVal">0.2</span></div>
+      <input type="range" id="masterGlideTime" min="0" max="2" step="0.05" value="0.2" oninput="updateLua(); masterGlideTimeVal.textContent = this.value" />
+
+      <label><input type="checkbox" id="masterGlideEnabled" onchange="updateLua()" /> Glide Enabled</label>
+
+      <div class="slider-label"><label for="masterPitch">Pitch Bend:</label><span id="masterPitchVal">0</span></div>
+      <input type="range" id="masterPitch" min="-12" max="12" step="1" value="0" oninput="updateLua(); masterPitchVal.textContent = this.value" />
+
+	  <div class="slider-label"><label for="masterTremolo">Tremolo:</label><span id="masterTremoloVal">120</span></div>
+      <input type="range" id="masterTremolo" min="0" max="1" step="0.05" value="120" oninput="updateLua(); masterTremoloVal.textContent = this.value" />
+
+      <div class="slider-label"><label for="masterTempo">Tempo:</label><span id="masterTempoVal">120</span></div>
+      <input type="range" id="masterTempo" min="30" max="300" step="1" value="120" oninput="updateLua(); masterTempoVal.textContent = this.value" />
+    
+	
+	</details>
+
+    <div class="button-row">
+	   <label for="jsonFile" class="button-like">Open JSON preset...</label>
+	   <input type="file" id="jsonFile" accept="application/json" onchange="loadJsonPreset(event)" style="display: none;" />
+	   <button class="button-like" onclick="saveJsonPreset()">Save as JSON</button>
+	   <button class="button-like" onclick="copyLuaToClipboard()">Copy to Clipboard</button>
+	   <button class="button-like" onclick="toggleView()">Toggle View (Lua / JSON)</button>
+	</div>
+
+  </div>
+  <!-- <pre id="output" class="code-output"></pre> -->
+
+  <div id="editor" class="code-output"></div>
+
+  <script>
+  
+	let currentView = "lua"; // or "json"
+
+	function toggleView() {
+	  const pre = document.getElementById("editor");
+	  if (currentView === "lua") {
+		const preset = collectPresetData();
+		pre.textContent = JSON.stringify(preset, null, 2);
+		currentView = "json";
+	  } else {
+		const lua = updateLua();
+		currentView = "lua";
+	  }
+	}
+
+	function collectPresetData() {
+	   const getVal = id => document.getElementById(id)?.value;
+	   const getCheck = id => document.getElementById(id)?.checked;
+
+	   const oscillator = Array.from(document.querySelectorAll("#oscillators fieldset")).map(fs => ({
+		  name: fs.querySelector(".oscName").value,
+		  type: "OscillatorType." + fs.querySelector(".oscType").value,
+		  detune: Number(fs.querySelector(".oscDetune").value),
+		  pan: Number(fs.querySelector(".oscPan").value),
+		  gain: Number(fs.querySelector(".oscGain").value)
+	   }));
+
+	   const lfo = Array.from(document.querySelectorAll("#lfos fieldset")).map(fs => ({
+		  name: fs.querySelector(".lfoName").value,
+		  assignment: "LFOAssignment." + fs.querySelector(".lfoAssign").value,
+		  target: fs.querySelector(".lfoTarget").value,
+		  frequency: Number(fs.querySelector(".lfoFreq").value),
+		  depth: Number(fs.querySelector(".lfoDepth").value),
+		  waveform: "LFOWaveform." + fs.querySelector(".lfoWave").value
+	   }));
+
+	   const envelope = {
+		  attack: Number(getVal("envAttack")),
+		  decay: Number(getVal("envDecay")),
+		  sustain: Number(getVal("envSustain")),
+		  release: Number(getVal("envRelease"))
+	   };
+
+	   const filter = Array.from(document.querySelectorAll(".filter")).map(f => ({
+		  name: f.querySelector(".filterName").value,
+		  type: "FilterType." + f.querySelector(".filterType").value,
+		  cutoff: Number(f.querySelector(".filterCutoff").value),
+		  resonance: Number(f.querySelector(".filterResonance").value)
+	   }));
+
+	   const effect = Array.from(document.querySelectorAll(".effect")).map(e => {
+		  const obj = {
+			 name: e.querySelector(".effectName").value,
+			 type: "EffectType." + e.querySelector(".effectType").value
+		  };
+		  e.querySelectorAll(".effectParam").forEach(p => {
+			 const key = p.dataset.param;
+			 const isDistMode = obj.type === "EffectType.Distortion" && key === "mode";
+			 obj[key] = (p.type === "range")
+				? Number(p.value)
+				: (isDistMode ? "DistortionType." + p.value : p.value);
+		  });
+		  return obj;
+	   });
+
+	   const master = {
+		  gain: Number(getVal("masterGain")),
+		  pan: Number(getVal("masterPan")),
+		  glideTime: Number(getVal("masterGlideTime")),
+		  glideEnabled: getCheck("masterGlideEnabled"),
+		  pitch: Number(getVal("masterPitch")),
+		  tempo: Number(getVal("masterTempo"))
+	   };
+
+	   return { oscillator, lfo, envelope, filter, effect, master };
+	}
+
+	  
+	  function fillUIFromPreset(data) {
+	   // master
+	   const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+	   const setCheck = (id, val) => { const el = document.getElementById(id); if (el) el.checked = val; };
+
+	   const m = data.master || {};
+	   setVal("masterGain", m.gain);
+	   setVal("masterPan", m.pan);
+	   setVal("masterGlideTime", m.glideTime);
+	   setCheck("masterGlideEnabled", m.glideEnabled);
+	   setVal("masterPitch", m.pitch);
+	   setVal("masterTempo", m.tempo);
+	   setVal("masterTremolo", m.tremolo);
+
+	   const e = data.envelope || {};
+	   setVal("envAttack", e.attack);
+	   setVal("envDecay", e.decay);
+	   setVal("envSustain", e.sustain);
+	   setVal("envRelease", e.release);
+
+	   // clear and rebuild oscillators
+	   document.getElementById("oscillators").innerHTML = "";
+	   (data.oscillator || []).forEach(o => {
+		  addOscillator();
+		  const el = document.querySelector("#oscillators fieldset:last-child");
+		  el.querySelector(".oscName").value = o.name;
+		  el.querySelector(".oscType").value = o.type;
+		  el.querySelector(".oscDetune").value = o.detune;
+		  el.querySelector(".oscPan").value = o.pan;
+		  el.querySelector(".oscGain").value = o.gain;
+	   });
+
+	   // LFO
+	   document.getElementById("lfos").innerHTML = "";
+	   (data.lfo || []).forEach(l => {
+		  addLFO();
+		  const el = document.querySelector("#lfos fieldset:last-child");
+		  el.querySelector(".lfoName").value = l.name;
+		  el.querySelector(".lfoAssign").value = l.assignment;
+		  el.querySelector(".lfoTarget").value = l.target;
+		  el.querySelector(".lfoFreq").value = l.frequency;
+		  el.querySelector(".lfoDepth").value = l.depth;
+		  el.querySelector(".lfoWave").value = l.waveform;
+	   });
+
+	   // Filter
+	   document.getElementById("filters").innerHTML = "";
+	   (data.filter || []).forEach(f => {
+		  addFilter();
+		  const el = document.querySelector("#filters .filter:last-child");
+		  el.querySelector(".filterName").value = f.name;
+		  el.querySelector(".filterType").value = f.type;
+		  el.querySelector(".filterCutoff").value = f.cutoff;
+		  el.querySelector(".filterResonance").value = f.resonance;
+	   });
+
+	   // Effects
+	   document.getElementById("effects").innerHTML = "";
+	   (data.effect || []).forEach(eff => {
+		  addEffect();
+		  const el = document.querySelector("#effects .effect:last-child");
+		  el.querySelector(".effectName").value = eff.name;
+		  el.querySelector(".effectType").value = eff.type;
+		  changeEffectParams(el.querySelector(".effectType")); // show correct params
+		  Object.keys(eff).forEach(k => {
+			 const p = el.querySelector(`.effectParam[data-param='${k}']`);
+			 if (p) p.value = eff[k];
+		  });
+	   });
+
+	   updateLua(); // refresh output
+	}
+
+      function saveJsonPreset() {
+         const preset = collectPresetData();
+         const blob = new Blob([JSON.stringify(preset, null, 2)], { type: "application/json" });
+         const url = URL.createObjectURL(blob);
+         const a = document.createElement("a");
+         a.href = url;
+         a.download = "preset.json";
+         a.click();
+         URL.revokeObjectURL(url);
+      }
+
+      function loadJsonPreset(event) {
+         const file = event.target.files[0];
+         if (!file) return;
+         const reader = new FileReader();
+         reader.onload = () => {
+            try {
+               const data = JSON.parse(reader.result);
+               document.getElementById("editor").textContent = JSON.stringify(data, null, 2);
+				fillUIFromPreset(data);
+            } catch (e) {
+               alert("Invalid JSON preset");
+            }
+         };
+         reader.readAsText(file);
+      }
+	  
+	function copyLuaToClipboard() {
+	   const text = document.getElementById("editor").textContent;
+	   navigator.clipboard.writeText(text).then(() => {
+		  alert("Preset copied to clipboard!");
+	   }).catch(err => {
+		  alert("Failed to copy: " + err);
+	   });
+	}
+
+  
+    let oscCount = 0;
+    let lfoCount = 0;
+	let filterCount = 0;
+	let effectCount = 0;
+
+    function addOscillator() {
+      const container = document.getElementById("oscillators");
+      const id = `osc${oscCount++}`;
+      const html = `
+        <fieldset id="${id}">
+          <legend>Oscillator ${oscCount}</legend>
+          <label>Name: <input type="text" class="oscName" value="OSC-${oscCount}" /></label>
+          <label>Type:
+            <select class="oscType">
+              <option>Sine</option>
+              <option>Square</option>
+              <option>Saw</option>
+              <option>Triangle</option>
+              <option>SquarePWM</option>
+            </select>
+          </label>
+          <div class="slider-label"><label>Detune:</label><span class="oscDetuneVal">0.0</span></div>
+          <input type="range" class="oscDetune" min="-0.1" max="0.1" step="0.01" value="0.0" oninput="updateLua()" />
+
+          <div class="slider-label"><label>Pan:</label><span class="oscPanVal">0</span></div>
+          <input type="range" class="oscPan" min="-1" max="1" step="0.1" value="0" oninput="updateLua()" />
+
+          <div class="slider-label"><label>Gain:</label><span class="oscGainVal">0.5</span></div>
+          <input type="range" class="oscGain" min="0" max="1" step="0.05" value="0.5" oninput="updateLua()" />
+        </fieldset>
+      `;
+      container.insertAdjacentHTML("beforeend", html);
+      updateLua();
+    }
+
+    function addLFO() {
+      const container = document.getElementById("lfos");
+      const id = `lfo${lfoCount++}`;
+      const html = `
+        <fieldset id="${id}">
+          <legend>LFO ${lfoCount}</legend>
+          <label>Name: <input type="text" class="lfoName" value="LFO-${lfoCount}" /></label>
+          <label>Target:
+            <input type="text" class="lfoTarget" value="OSC-1" />
+          </label>
+          <label>Assignment:
+            <select class="lfoAssign">
+              <option>OscPitch</option>
+              <option>OscGain</option>
+              <option>OscPulseWidth</option>
+              <option>FilterCutoff</option>
+              <option>Pan</option>
+            </select>
+          </label>
+          <label>Waveform:
+            <select class="lfoWave">
+              <option>Sine</option>
+              <option>Square</option>
+              <option>Triangle</option>
+              <option>Saw</option>
+            </select>
+          </label>
+          <div class="slider-label"><label>Rate:</label><span class="lfoFreqVal">1.0</span></div>
+          <input type="range" class="lfoFreq" min="0.01" max="10" step="0.01" value="1.0" oninput="updateLua()" />
+
+          <div class="slider-label"><label>Depth:</label><span class="lfoDepthVal">0.5</span></div>
+          <input type="range" class="lfoDepth" min="0" max="1" step="0.01" value="0.5" oninput="updateLua()" />
+        </fieldset>
+      `;
+      container.insertAdjacentHTML("beforeend", html);
+      updateLua();
+    }
+	
+	function addFilter() {
+	  const container = document.getElementById("filters");
+	  const div = document.createElement("div");
+	  div.className = "filter";
+
+	  const id = ++filterCount;
+	  const name = `FLT-${id}`;
+
+	  div.innerHTML = `
+		<fieldset>
+		  <legend>Filter ${id}</legend>
+		  <label>Name: <input type="text" class="filterName" value="${name}"></label>
+		  <label>Type:
+			<select class="filterType">
+			  <option>LowPass</option>
+			  <option>HighPass</option>
+			  <option>BandPass</option>
+			  <option>Notch</option>
+			</select>
+		  </label>
+		  <label>Cutoff:
+			<input type="range" class="filterCutoff" min="20" max="20000" step="10" value="1000" oninput="updateLua()">
+		  </label>
+		  <label>Resonance:
+			<input type="range" class="filterResonance" min="0" max="1" step="0.01" value="0.5" oninput="updateLua()">
+		  </label>
+		  <button type="button" onclick="moveFilter(this, -1)">↑</button>
+		  <button type="button" onclick="moveFilter(this, 1)">↓</button>
+		  <button type="button" onclick="removeFilter(this)">Remove</button>
+		</fieldset>
+	  `;
+
+	  container.appendChild(div);
+	  updateLua();
+	}
+	
+	function moveFilter(button, direction) {
+	  const div = button.closest(".filter");
+	  const parent = div.parentElement;
+	  const siblings = Array.from(parent.children);
+	  const index = siblings.indexOf(div);
+
+	  const newIndex = index + direction;
+	  if (newIndex < 0 || newIndex >= siblings.length) return;
+
+	  parent.insertBefore(div, siblings[direction > 0 ? newIndex + 1 : newIndex]);
+	  updateLua();
+	}
+
+	function removeFilter(button) {
+	  const div = button.closest(".filter");
+	  div.remove();
+	  updateLua();
+	}
+
+	const effectParams = {
+	  Delay:       ["mix", "time", "feedback", "preDelay", "lowCutoff", "highCutoff"],
+	  Reverb:      ["mix", "size", "damping", "preDelay"],
+	  Chorus:      ["mix", "depth", "rate", "width", "feedback"],
+	  Flanger:     ["mix", "rate", "depth", "delay", "feedback", "width", "lowCutoff", "highCutoff"],
+	  Phaser:      ["mix", "rate", "depth", "feedback", "stages"],
+	  EQ:          ["mix", "lowGain", "lowFreq", "midGain", "midFreq", "midQ", "highGain", "highFreq"],
+	  Compressor:  ["threshold", "ratio", "attack", "release", "makeup", "knee", "lookaheadTime", "detectHpCutoff"],
+	  Limiter:     ["threshold", "attack", "release", "lookaheadTime"],
+	  NoiseGate:   ["threshold", "ratio", "attack", "release", "makeup"],
+	  Distortion:  ["mode", "mix", "gain", "bias", "bits", "reduction"],
+	  Rotary:      ["mix", "rate", "depth"]
+	};
+	
+	const distortionModes = ["Fuzz", "Overdrive", "HardClip", "Bitcrusher"];
+
+	function addEffect() {
+	  const container = document.getElementById("effects");
+	  const div = document.createElement("div");
+	  div.className = "effect";
+
+	  const id = ++effectCount;
+	  const name = `FX-${id}`;
+
+	  div.innerHTML = `
+		<fieldset>
+		  <legend>Effect ${id}</legend>
+		  <label>Name: <input type="text" class="effectName" value="${name}" /></label>
+		  <label>Type:
+			<select class="effectType" onchange="changeEffectParams(this)">
+			  ${Object.keys(effectParams).map(t => `<option>${t}</option>`).join("\n")}
+			</select>
+		  </label>
+		  <div class="effectParams"></div>
+		  <button type="button" onclick="moveEffect(this, -1)">↑</button>
+		  <button type="button" onclick="moveEffect(this, 1)">↓</button>
+		  <button type="button" onclick="removeEffect(this)">Remove</button>
+		</fieldset>
+	  `;
+
+	  container.appendChild(div);
+	  changeEffectParams(div.querySelector(".effectType"));
+	  updateLua();
+	}
+
+	function changeEffectParams(select) {
+	  const container = select.closest("fieldset").querySelector(".effectParams");
+	  const type = select.value;
+	  const params = effectParams[type];
+
+	  container.innerHTML = params.map(param => {
+		if (type === "Distortion" && param === "mode") {
+		  return `
+			<label>mode:
+			  <select class="effectParam" data-param="mode" onchange="updateLua()">
+				${distortionModes.map(mode => `<option>${mode}</option>`).join("\n")}
+			  </select>
+			</label>`;
+		} else {
+		  return `
+			<label>${param}:
+			  <input type="range" class="effectParam" data-param="${param}" min="0" max="1" step="0.01" value="0.5" oninput="updateLua()" />
+			</label>`;
+		}
+	  }).join("\n");
+	}
+
+	function moveEffect(button, direction) {
+	  const div = button.closest(".effect");
+	  const parent = div.parentElement;
+	  const siblings = Array.from(parent.children);
+	  const index = siblings.indexOf(div);
+	  const newIndex = index + direction;
+	  if (newIndex < 0 || newIndex >= siblings.length) return;
+	  parent.insertBefore(div, siblings[direction > 0 ? newIndex + 1 : newIndex]);
+	  updateLua();
+	}
+
+	function removeEffect(button) {
+	  const div = button.closest(".effect");
+	  div.remove();
+	  updateLua();
+	}
+	
+	function generateEffectLua() {
+	  const effects = Array.from(document.querySelectorAll(".effect")).map(e => {
+		const name = e.querySelector(".effectName").value;
+		const type = e.querySelector(".effectType").value;
+
+		const params = Array.from(e.querySelectorAll(".effectParam")).map(p => {
+		  const key = p.dataset.param;
+		  const val = p.type === "range"
+			? p.value
+			: (type === "Distortion" && key === "mode" ? `DistortionType.${p.value}` : p.value);
+		  return `         ${key} = ${val}`; // 2 tab
+		});
+
+		return `      {\n         name = "${name}",\n         type = EffectType.${type},\n${params.join(",\n")}\n      }`; 
+	  });
+
+	  return effects.length ? `${effects.join(",\n")}` : ""; // 1 tab
+	}
+
+    function updateLua() {
+      // Udate slider readouts
+      const envFields = ["Attack", "Decay", "Sustain", "Release"];
+      envFields.forEach(name => {
+	   const val = document.getElementById("env" + name).value;
+	   document.getElementById("env" + name + "Val").textContent = val;
+      });
+
+      // Gather oscillators
+      const oscillators = [];
+      document.querySelectorAll("#oscillators fieldset").forEach(fs => {
+   const name = fs.querySelector(".oscName").value;
+   const type = fs.querySelector(".oscType").value;
+   const detune = fs.querySelector(".oscDetune").value;
+   const pan = fs.querySelector(".oscPan").value;
+   const gain = fs.querySelector(".oscGain").value;
+   fs.querySelector(".oscDetuneVal").textContent = detune;
+   fs.querySelector(".oscPanVal").textContent = pan;
+   fs.querySelector(".oscGainVal").textContent = gain;
+   oscillators.push(`{ name = "${name}", type = OscillatorType.${type}, gain = ${gain}, detune = ${detune}, pan = ${pan} }`);
+      });
+
+      // Gather LFOs
+      const lfos = [];
+      document.querySelectorAll("#lfos fieldset").forEach(fs => {
+   const name = fs.querySelector(".lfoName").value;
+   const target = fs.querySelector(".lfoTarget").value;
+   const assign = fs.querySelector(".lfoAssign").value;
+   const wave = fs.querySelector(".lfoWave").value;
+   const freq = fs.querySelector(".lfoFreq").value;
+   const depth = fs.querySelector(".lfoDepth").value;
+   fs.querySelector(".lfoFreqVal").textContent = freq;
+   fs.querySelector(".lfoDepthVal").textContent = depth;
+   lfos.push(`   {
+          name = "${name}",
+          assignment = LFOAssignment.${assign},
+          target = "${target}",
+          frequency = ${freq},
+          depth = ${depth},
+          waveform = LFOWaveform.${wave}
+       }`);
+});
+	  
+	  const filters = Array.from(document.querySelectorAll(".filter"))
+	  .map(f => {
+		const name = f.querySelector(".filterName").value;
+		const type = f.querySelector(".filterType").value;
+		const cutoff = f.querySelector(".filterCutoff").value;
+		const resonance = f.querySelector(".filterResonance").value;
+		return `   { name = "${name}", type = FilterType.${type}, cutoff = ${cutoff}, resonance = ${resonance} }`;
+	  });
+	  
+		
+
+		  const attack = document.getElementById("envAttack").value;
+		  const decay = document.getElementById("envDecay").value;
+		  const sustain = document.getElementById("envSustain").value;
+		  const release = document.getElementById("envRelease").value;
+		  
+		  const masterGain = document.getElementById("masterGain").value;
+		  const masterPan = document.getElementById("masterPan").value;
+		  const masterGlideTime = document.getElementById("masterGlideTime").value;
+		  const masterGlideEnabled = document.getElementById("masterGlideEnabled").checked;
+		  const masterPitch = document.getElementById("masterPitch").value;
+		  const masterTempo = document.getElementById("masterTempo").value;
+		  const masterTremolo = document.getElementById("masterTremolo").value;
+
+		const effectBlock = generateEffectLua();
+		
+		const lua = `
+modules = {
+    oscillator = {
+	${oscillators.join(",\n        ")}
+    },
+	
+    envelope = {
+	attack = ${attack}, decay = ${decay}, sustain = ${sustain}, release = ${release}
+    },
+	
+    lfo = {
+    ${lfos.join(",\n    ")}
+    },
+	
+    filter = {
+    ${filters.join(",\n    ")}
+    },
+	
+    effect = {
+${effectBlock}
+    },
+    
+    master = {
+        gain = ${masterGain},
+        pan = ${masterPan},
+        glideTime = ${masterGlideTime},
+        glideEnabled = ${masterGlideEnabled},
+        pitch = ${masterPitch},
+        tempo = ${masterTempo},
+		tremolo = ${masterTremolo}
+    }
+}
+`;
+
+		document.getElementById("editor").textContent = lua;
+		}
+
+    addOscillator();
+	
+	toggleView();
+
+  </script>
+</body>
+</html>
