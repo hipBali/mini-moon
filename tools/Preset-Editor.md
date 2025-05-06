@@ -7,11 +7,11 @@ This tool provides a browser-based, platform-independent interface for creating 
 ## Features
 
 - Add and configure:
-  - 🎚Oscillators (type, gain, detune, pan, etc.)
+  - Oscillators (type, gain, detune, pan, etc.)
   - LFOs (target assignment, waveform, sync, depth)
   - Filters (type, cutoff, resonance — order-sensitive)
   - Effects (chained with drag-reorder and full parameter sets)
-  - 🎚Master settings (gain, pan, tempo, pitch, glide)
+  - Master settings (gain, pan, tempo, pitch, glide)
 
 - Live Lua code generation
 - JSON export & import
