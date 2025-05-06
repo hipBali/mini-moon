@@ -21,7 +21,7 @@ This project is aimed at hobbyists and tinkerers who want to dive deeper into cu
 ## Getting Started
 
 See the following docs for details:
-
+* **[Configuration](doc/Configuration.md)** – global polysynth engine configuration
 * **[Preset Format Specification](doc/Preset-Format.md)** – how to define modules, parameters, and patch layout
 * **[Scripting Reference](doc/Lua_Scripting_Guide.md)** – Lua API for MIDI input, note events, controller handling, and custom logic
 * **[Modulation Matrix](doc/Modulation.md)** – callback-based LFO routing and creative modulation ideas
