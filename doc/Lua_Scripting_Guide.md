@@ -79,8 +79,8 @@ modules = {
     {
       name = "LFO-1",
       waveform = LFOWaveform.Sine,
-      callback = function(value)
-        -- value ∈ [-1.0 .. 1.0]
+      callback = function(lfoName, value, targetName)
+        -- ...
       end
     }
   }
