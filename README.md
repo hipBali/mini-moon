@@ -6,7 +6,7 @@ This project is aimed at hobbyists and tinkerers who want to dive deeper into cu
 
 ---
 
-## 🚀 Features
+## Features
 
 * Polyphonic subtractive synthesizer core
 * Modular signal chain: oscillators, filters, LFOs, effects, envelope, master
@@ -18,21 +18,21 @@ This project is aimed at hobbyists and tinkerers who want to dive deeper into cu
 
 ---
 
-## 📦 Getting Started
+## Getting Started
 
 See the following docs for details:
 
-* 🎛 **[Preset Format Specification](Preset-Format.md)** – how to define modules, parameters, and patch layout
-* 🧠 **[Scripting Reference](Scripting-Reference.md)** – Lua API for MIDI input, note events, controller handling, and custom logic
-* 🔁 **[Modulation Matrix](Modulation.md)** – callback-based LFO routing and creative modulation ideas
-* 🧪 **[Example Preset](Example-Preset.md)** – annotated dual LFO patch with dynamic tempo sync
-* 🎨 **[Preset Editor](Preset-Editor.md)** – visual web-based preset designer (public domain)
+* **[Preset Format Specification](doc/Preset-Format.md)** – how to define modules, parameters, and patch layout
+* **[Scripting Reference](Sdoc/cripting-Reference.md)** – Lua API for MIDI input, note events, controller handling, and custom logic
+* **[Modulation Matrix](doc/Modulation.md)** – callback-based LFO routing and creative modulation ideas
+* **[Example Preset](doc/Example-Preset.md)** – annotated dual LFO patch with dynamic tempo sync
+* **[Preset Editor](tools/Preset-Editor.md)** – visual web-based preset designer (public domain)
 
-![Preset Editor Screenshot](assets/preset-editor-preview.png)
+![Preset Editor Screenshot](assets/preset-editor.png)
 
 ---
 
-## 🛠 Build & Platform Notes
+## Build & Platform Notes
 
 ### Windows (MSYS2 + UCRT toolchain)
 
