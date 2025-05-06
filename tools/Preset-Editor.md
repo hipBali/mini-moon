@@ -58,3 +58,6 @@ modules = {
       gain = 0.8, pan = 0, tempo = 120
    }
 }
+```
+
+![Preset Editor Screenshot](assets/preset-editor.png)
