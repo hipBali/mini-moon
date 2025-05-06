@@ -35,9 +35,9 @@ See the following docs for details:
 ### Windows (MSYS2 + UCRT toolchain)
 
 * Clean static builds via `mingw-w64-ucrt-x86_64-gcc`
-* Uses `Makefile.windows.msys2`
 * Requires MSYS2 + UCRT64 shell and Lua (install with `pacman -S mingw-w64-ucrt-x86_64-lua`)
 * No DLL runtime dependencies
+* See `Makefile.win`
 
 ### Linux (Ubuntu/Debian)
 
@@ -47,7 +47,6 @@ See the following docs for details:
 
 ### macOS
 
-* Fully supported
 * Build with Homebrew (`brew install lua@5.4 pkg-config`)
 * Uses CoreAudio/CoreMIDI backend by default
 * See `Makefile.macos`
@@ -55,8 +54,7 @@ See the following docs for details:
 ### Raspberry Pi
 
 * Primary embedded target
-* Optimized builds with `-O2` / `-Os`
-* Low-latency backend (ALSA or JACK recommended)
+* See 'linux' section
 
 ---
 
