@@ -52,7 +52,7 @@ See the following docs for details:
 * Fully supported
 * Build with Homebrew (`brew install lua@5.4 pkg-config`)
 * Uses CoreAudio/CoreMIDI backend by default
-* See `Makefile.macos` (if present)
+* See `Makefile.macos`
 
 ### Raspberry Pi
 
