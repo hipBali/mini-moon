@@ -34,23 +34,43 @@ The core of every preset is a table (or JSON object) called `modules`, which con
     "oscillator": [
       {
         "name": "OSC-1",
-        "type": "Sine"
+        "type": "OscillatorType.Sine"
       }
     ],
     "lfo": [
       {
-        "name": "LLFO-1",
-        "waveform": "Sine",
-        "assignment": "OscGain",
+        "name": "LFO-1",
+        "waveform": "LFOWaveform.Sine",
+        "assignment": "LFOAssignment.OscGain",
         "bypass": true
       }
     ],
     "filter": [
-      { "name": "LPF", "type": "LowPass", "bypass": true },
-      { "name": "HPF", "type": "HighPass", "bypass": true },
-      { "name": "BPF", "type": "BandPass", "bypass": true },
-      { "name": "MLP", "type": "MoogLowPass", "bypass": true },
-      { "name": "NOF", "type": "Notch", "bypass": true }
+      {
+        "name": "LPF",
+        "type": "FilterType.LowPass",
+        "bypass": true
+      },
+      {
+        "name": "HPF",
+        "type": "FilterType.HighPass",
+        "bypass": true
+      },
+      {
+        "name": "BPF",
+        "type": "FilterType.BandPass",
+        "bypass": true
+      },
+      {
+        "name": "MLP",
+        "type": "FilterType.MoogLowPass",
+        "bypass": true
+      },
+      {
+        "name": "NOF",
+        "type": "FilterType.Notch",
+        "bypass": true
+      }
     ],
     "envelope": {
       "attack": 0.05,
@@ -59,15 +79,85 @@ The core of every preset is a table (or JSON object) called `modules`, which con
       "release": 0.05
     },
     "effect": [
-      { "name": "Distortion", "type": "Distortion", "mode": "Overdrive", "gain": 5.0, "mix": 0.5, "bias": 0.0, "bitDepth": 8, "reduction": 4, "bypass": true },
-      { "name": "Chorus",     "type": "Chorus",     "rate": 0.3, "depth": 0.4, "mix": 0.5, "bypass": true },
-      { "name": "Delay",      "type": "Delay",      "time": 0.3, "feedback": 0.4, "mix": 0.5, "bypass": true },
-      { "name": "Reverb",     "type": "Reverb",     "size": 0.5, "damping": 0.5, "mix": 0.5, "bypass": true },
-      { "name": "Flanger",    "type": "Flanger",    "rate": 0.2, "depth": 0.5, "delay": 2.0, "mix": 0.5, "bypass": true },
-      { "name": "Rotary",     "type": "Rotary",     "rate": 0.3, "depth": 0.6, "mix": 0.5, "bypass": true },
-      { "name": "Compressor", "type": "Compressor", "threshold": -18.0, "ratio": 4.0, "attack": 0.01, "release": 0.3, "makeup": 0.0, "knee": 0.0, "bypass": true },
-      { "name": "Limiter",    "type": "Limiter",    "threshold": -1.0, "attack": 0.001, "release": 0.1, "bypass": true },
-      { "name": "NoiseGate",  "type": "NoiseGate",  "threshold": -40.0, "attack": 0.01, "release": 0.1, "bypass": true }
+      {
+        "name": "Distortion",
+        "type": "EffectType.Distortion",
+        "mode": "DistortionType.Overdrive",
+        "gain": 5.0,
+        "mix": 0.5,
+        "bias": 0.0,
+        "bitDepth": 8,
+        "reduction": 4,
+        "bypass": true
+      },
+      {
+        "name": "Chorus",
+        "type": "EffectType.Chorus",
+        "rate": 0.3,
+        "depth": 0.4,
+        "mix": 0.5,
+        "bypass": true
+      },
+      {
+        "name": "Delay",
+        "type": "EffectType.Delay",
+        "time": 0.3,
+        "feedback": 0.4,
+        "mix": 0.5,
+        "bypass": true
+      },
+      {
+        "name": "Reverb",
+        "type": "EffectType.Reverb",
+        "size": 0.5,
+        "damping": 0.5,
+        "mix": 0.5,
+        "bypass": true
+      },
+      {
+        "name": "Flanger",
+        "type": "EffectType.Flanger",
+        "rate": 0.2,
+        "depth": 0.5,
+        "delay": 2.0,
+        "mix": 0.5,
+        "bypass": true
+      },
+      {
+        "name": "Rotary",
+        "type": "EffectType.Rotary",
+        "rate": 0.3,
+        "depth": 0.6,
+        "mix": 0.5,
+        "bypass": true
+      },
+      {
+        "name": "Compressor",
+        "type": "EffectType.Compressor",
+        "threshold": -18.0,
+        "ratio": 4.0,
+        "attack": 0.01,
+        "release": 0.3,
+        "makeup": 0.0,
+        "knee": 0.0,
+        "bypass": true
+      },
+      {
+        "name": "Limiter",
+        "type": "EffectType.Limiter",
+        "threshold": -1.0,
+        "attack": 0.001,
+        "release": 0.1,
+        "bypass": true
+      },
+      {
+        "name": "NoiseGate",
+        "type": "EffectType.NoiseGate",
+        "threshold": -40.0,
+        "attack": 0.01,
+        "release": 0.1,
+        "bypass": true
+      }
     ],
     "master": {
       "gain": 1.0,
@@ -75,6 +165,7 @@ The core of every preset is a table (or JSON object) called `modules`, which con
     }
   }
 }
+
 ```
 
 ### LUA 
