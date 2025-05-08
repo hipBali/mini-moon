@@ -32,11 +32,20 @@ See the following docs for details:
 
 ## Build & Platform Notes
 
-### Windows (MSYS2 + UCRT toolchain)
+### Required Dependencies
+
+| Component               | Notes                            |
+| ----------------------- | -------------------------------- |
+| **C++17 compiler**      | GCC 9+, Clang 10+, or MSVC 2019+ |
+| **LuaJIT / 5.4**        | Static or dynamic linkage        |
+| **sol2**                | Header-only (v3.2+)              |
+| **RtAudio**             | For audio output                 |
+| **RtMidi**              | For MIDI I/O                     |
+
+
+### Windows
 
 * Clean static builds via `mingw-w64-ucrt-x86_64-gcc`
-* Requires MSYS2 + UCRT64 shell and Lua (install with `pacman -S mingw-w64-ucrt-x86_64-lua`)
-* No DLL runtime dependencies
 * See `Makefile.win`
 
 ### Linux (Ubuntu/Debian)
