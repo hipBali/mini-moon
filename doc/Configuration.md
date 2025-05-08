@@ -71,7 +71,7 @@ Used by `synth:mapVelocity()` during `noteOn()`.
 
 ```lua
 global_midi_cc = {
-  control = function(cc, value)
+  control = function(channel, cc, value)
     if cc == 18 then ctl:savePreset()
     elseif cc == 17 then ctl:nextPreset()
     elseif cc == 16 then ctl:prevPreset()
