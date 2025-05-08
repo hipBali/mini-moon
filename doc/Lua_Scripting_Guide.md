@@ -91,7 +91,7 @@ LFO callbacks enable per-cycle logic like automation or shaping.
 
 ---
 
-## Full Arpeggiator Example
+## Minimalist Arpeggiator Example
 
 ```lua
 local arp = {
