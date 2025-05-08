@@ -1,156 +1,172 @@
-# Mini-Moon Scripting API Reference (Lua)
+# Lua Scripting Guide (Updated)
 
-This document describes how to define interactive, MIDI-reactive, and time-based behaviors in Mini-Moon presets using embedded Lua scripting.
-
----
-
-## Where to Define Scripts
-
-Scripts are defined directly within Lua-based presets or `.lua` files attached to hybrid presets. Scripting logic is handled through two main interfaces:
-
-* The `midi_cc` table for MIDI-triggered logic
-* The global `ctl` object for control and triggering API
+This guide covers scripting support for the synth engine, including real-time control, voice handling, step sequencing, modular patching, and live MIDI input.
 
 ---
 
-## MIDI Callback Table: `midi_cc`
+## General Concepts
 
-Define this table at the top level of your preset:
+* Each preset script can define `init()`, `midi_cc = {}` handlers.
+* Scripts are executed per preset load. Runtime behavior must be set up **in `init()` or at first MIDI input**.
+* `ctl.onStep(...)` can only be registered **after audio is running**.
+
+---
+
+## Script Structure
+
+### `init()`
+
+Runs once when the preset is loaded.
+
+```lua
+init = function()
+  master.set { tempo = 120, gain = 1.0 }
+  ctl.onStep(my_step_handler)  -- Only register once
+end
+```
+
+### `midi_cc = {}`
+
+Table for MIDI event handling.
 
 ```lua
 midi_cc = {
-  note_on = function(note, velocity)
-    -- Called when a MIDI note-on is received
+  note_on = function(note, vel, channel)
+    ctl.noteOn(note, vel)
   end,
 
-  note_off = function(note)
-    -- Called when a MIDI note-off is received
+  note_off = function(note,channel)
+    ctl.noteOff(note)
   end,
 
-  control = function(cc, value)
-    -- Called on generic MIDI CC input
-    return true  -- allow fallback
-  end,
-
-  pitch_bend = function(value)
-    -- Called on pitch bend event (0.0 - 1.0 normalized)
-  end,
-
-  mod_wheel = function(value)
-    -- Called when CC1 (mod wheel) changes
+  control = function(channel, cc, value)
+    print("Received CC", cc, value)
   end
 }
 ```
 
-Each callback is optional. If not defined, it is skipped silently.
+---
+
+## ctl API Overview
+
+| Function                          | Description                                     |
+| --------------------------------- | ----------------------------------------------- |
+| `ctl.noteOn(note, velocity)`      | Trigger internal voice (0–127)                  |
+| `ctl.noteOff(note)`               | Release note                                    |
+| `ctl.onStep(fn)`                  | Register step callback (once only!)             |
+| `ctl.getStep()`                   | Get current internal step counter               |
+| `ctl.loadModule(name)`            | Load JSON preset into `modules` table           |
+| `ctl.sendMidi(table)` *(planned)* | Send MIDI message out (note\_on, control, etc.) |
 
 ---
 
-## Control API: `ctl` Object
-
-The global `ctl` object exposes callable functions and event registration for scripting:
-
-### Note trigger functions
+## Modules via JSON
 
 ```lua
-ctl.noteOn(note, velocity)
-ctl.noteOff(note)
+ctl.loadModule("001-piano")
 ```
 
-These trigger internal note playback and can be used in arpeggiators, sequencers, etc.
-
-### Step sequencer callback registration
-
-```lua
-ctl.onStep(function(step_index)
-  -- Called once per step advance
-end)
-```
-
-Only one function can be active at a time. Calling it again replaces the previous.
+Loads `presets/001-piano.json` and applies the `modules` definition.
 
 ---
 
-## Per-LFO Callback Support
+## Built-in Libraries (`scripts/`)
+
+### `note_sync`
+
+Synchronize note triggering with internal step timing.
 
 ```lua
-modules = {
-  lfo = {
-    {
-      name = "LFO-1",
-      waveform = LFOWaveform.Sine,
-      callback = function(lfoName, value, targetName)
-        -- ...
-      end
-    }
-  }
+local sync = require "scripts.note_sync"
+sync.set_steps_per_measure(16)
+sync.queue_note(note, vel, ctl.getStep() + 1)
+```
+
+### `loop_play`
+
+Simple step sequencer based on Giorgio Moroder style patterns.
+
+```lua
+local loop = require "scripts.loop_play"
+loop.set_pattern { 0, 7, 10, 7 }
+loop.set_bar_length(2)
+loop.set_steps_per_beat(4)
+loop.set_octave_shift(1)
+```
+
+### `chord_lib`
+
+Generates chords from scale, inversion, spread, etc.
+
+```lua
+local chord = chord_lib.generate {
+  root = 48, scale = "minor", notes = 4,
+  reverse = 0, inversion = 1, spread = 1, key = "Eb"
 }
 ```
 
-LFO callbacks enable per-cycle logic like automation or shaping.
-
 ---
 
-## Minimalist Arpeggiator Example
+## Example: Chord + Loop Split
 
 ```lua
-local arp = {
-    active = false,
-    base = 48,  -- C3
-    velocity = 100,
-    index = 1,
-    notes = { 0, 3, 7, 10 },  -- Cm7
-    lastStep = -1,
-    lastNote = nil,
-    playedNotes = {}
-}
-
 midi_cc = {
   note_on = function(note, vel)
-    arp.active = true
-    arp.base = note
-    arp.velocity = vel
-    arp.index = 2
-    arp.playedNotes[#arp.playedNotes + 1] = note
-  end,
-
-  note_off = function(note)
-    if arp.active and note == arp.base then
-      arp.active = false
-      for _, n in ipairs(arp.playedNotes) do
-        ctl.noteOff(n)
-      end
-      arp.playedNotes = {}
+    if note <= 59 then
+      local chord = chord_lib.generate { root = note, scale = "minor", notes = 4 }
+      for i, n in ipairs(chord) do if i > 1 then ctl.noteOn(n, vel) end end
+    else
+      loop.set_pattern { 0, 7, 10, 7 }
+      loop.start(note, vel, ctl.getStep())
     end
   end,
+  note_off = function(note)
+    ctl.noteOff(note)
+    loop.stop()
+  end
 }
 
-ctl.onStep(function(step)
-  if not arp.active or step == arp.lastStep then return end
-  arp.lastStep = step
-
-  local newNote = arp.base + arp.notes[arp.index]
-  local lastNote = arp.playedNotes[#arp.playedNotes]
-  if lastNote and lastNote ~= newNote then
-    ctl.noteOff(lastNote)
-  end
-
-  ctl.noteOn(newNote, arp.velocity)
-  arp.playedNotes[#arp.playedNotes + 1] = newNote
-
-  arp.index = arp.index + 1
-  if arp.index > #arp.notes then
-    arp.index = 1
-  end
-end)
+init = function()
+  master.set { tempo = 120 }
+  ctl.onStep(loop.process_step)
+end
 ```
 
 ---
 
-## Error Handling
+## MIDI Controller Input (CC)
 
-All callbacks are safely wrapped. Errors are printed but never crash the synth engine.
+Handled in:
+
+```lua
+midi_cc = {
+  control = function(cc, value)
+    -- value: 0–127
+    if cc == 1 then  -- Mod wheel
+      print("Modulation: ", value)
+    end
+  end
+}
+```
+
+Future plans:
+
+* `ctl.mapCC(cc, function)` for mapping callbacks directly
 
 ---
 
-This scripting system enables expressive, reactive, and algorithmic presets for advanced sound design in Mini-Moon.
+## Tips
+
+* Avoid re-registering `ctl.onStep` on each note
+* Use `ctl.getStep()` for quantized sequencing
+* Modularize common logic into `scripts/*.lua`
+
+---
+
+## Coming Soon
+
+* `ctl.sendMidi { type = "note_on", note = 60, velocity = 100, channel = 1 }`
+* `ctl.listMidiPorts()` and `ctl.setMidiOutPort()`
+* `ctl.mapCC()` and `ctl.setParam()` for real-time control
+
+---
