@@ -8,7 +8,6 @@ This guide describes scripting capabilities for the synth engine, including pres
 
 * Each script is loaded on preset switch.
 * Use `init()` to configure modules, sequencing, or MIDI behavior.
-* Global functions such as `sequenser(step)` or tables like `midi.map` provide integration points.
 * All timing and control resolution is driven by the internal step engine.
 
 ---
@@ -22,29 +21,9 @@ Runs once when the preset is loaded.
 ```lua
 init = function()
   master.set { tempo = 120, gain = 0.8 }
-  ctl.setupSequencer {
-    resolution = 16,
-    loopBars = 4,
-    swing = 0.2,
-    mute = false,
-    metronome = true
-  }
+  print("Preset started...")
 end
 ```
-
----
-
-## Step Sequencing
-
-Define a global function to respond to step events.
-
-```lua
-sequenser = function(step)
-  print("Step:", step)
-end
-```
-
-Step timing is controlled by `ctl.setupSequencer`.
 
 ---
 
@@ -65,11 +44,15 @@ midi = {
   },
 
   noteOn = function(note, vel, chn)
-    ctl.noteOn(note, vel)
+    print("noteOn:",note)
   end,
 
   noteOff = function(note, chn)
-    ctl.noteOff(note)
+    print("noteOff:",note)
+  end
+
+  sequencer = function(step)
+    print("sequencer")
   end
 }
 ```
@@ -126,7 +109,7 @@ init = function()
   }
 end
 
-sequenser = function(step)
+midi.sequencer = function(step)
   print("At step", step)
 end
 ```
