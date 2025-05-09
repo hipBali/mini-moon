@@ -1,14 +1,15 @@
 # Lua Scripting Guide
 
-This guide covers scripting support for the synth engine, including real-time control, voice handling, step sequencing, modular patching, and live MIDI input.
+This guide describes scripting capabilities for the synth engine, including preset control, modular patching, sequencing, and MIDI handling.
 
 ---
 
 ## General Concepts
 
-* Each preset script can define `init()`, `midi_cc = {}` handlers.
-* Scripts are executed per preset load. Runtime behavior must be set up **in `init()` or at first MIDI input**.
-* Global `sequenser(step)` is automatically called during internal step sequencing.
+* Each script is loaded on preset switch.
+* Use `init()` to configure modules, sequencing, or MIDI behavior.
+* Global functions such as `sequenser(step)` or tables like `midi.map` provide integration points.
+* All timing and control resolution is driven by the internal step engine.
 
 ---
 
@@ -20,193 +21,123 @@ Runs once when the preset is loaded.
 
 ```lua
 init = function()
-  master.set { tempo = 120, gain = 1.0 }
-  ctl.setupSequencer {
-    resolution = 16,
-    startBar = 1,
-    loopBars = 8,
-    swing = 0.0,
-    mute = false,
-    metronome = false
-  }
-end
-```
-
-### `midi_cc = {}`
-
-Table for MIDI event handling.
-
-```lua
-midi_cc = {
-  note_on = function(note, vel, channel)
-    ctl.noteOn(note, vel)
-  end,
-
-  note_off = function(note,channel)
-    ctl.noteOff(note)
-  end,
-
-  control = function(channel, cc, value)
-    print("Received CC", cc, value)
-  end
-}
-```
-
----
-
-## ctl API Overview
-
-| Function                            | Description                                                  |
-| ----------------------------------- | ------------------------------------------------------------ |
-| `ctl.noteOn(note, velocity)`        | Trigger internal voice (0–127)                               |
-| `ctl.noteOff(note)`                 | Release note                                                 |
-| `ctl.getStep()`                     | Get current internal step counter                            |
-| `ctl.setupSequencer{...}`          | Configure step resolution, loop, swing, mute, metronome      |
-| `ctl.loadModule(name)`             | Load JSON preset into `modules` table                        |
-| `ctl.isMuted()`                     | Query current mute state (if registered)                     |
-| `ctl.sendMidi(table)` *(planned)*  | Send MIDI message out (note_on, control, etc.)               |
-
----
-
-## Sequencing with `sequenser(step)`
-
-Define a global function to receive step callbacks:
-
-```lua
-sequenser = function(step)
-  print("Step", step)
-end
-```
-
-This is automatically called based on the `setupSequencer` parameters. Example:
-
-```lua
-ctl.setupSequencer{
-  resolution = 16,
-  loopBars = 4,
-  swing = 0.5,
-  metronome = true,
-  mute = false
-}
-```
-
-Metronome clicks are played internally on bar boundaries and beats depending on configuration.
-
----
-
-## Modules via JSON
-
-```lua
-ctl.loadModule("001-piano")
-```
-
-Loads `presets/001-piano.json` and applies the `modules` definition.
-
----
-
-## Built-in Libraries (`scripts/`)
-
-### `note_sync`
-
-Synchronize note triggering with internal step timing.
-
-```lua
-local sync = require "scripts.note_sync"
-sync.set_steps_per_measure(16)
-sync.queue_note(note, vel, ctl.getStep() + 1)
-```
-
-### `loop_play`
-
-Simple step sequencer based on Giorgio Moroder style patterns.
-
-```lua
-local loop = require "scripts.loop_play"
-loop.set_pattern { 0, 7, 10, 7 }
-loop.set_bar_length(2)
-loop.set_steps_per_beat(4)
-loop.set_octave_shift(1)
-```
-
-### `chord_lib`
-
-Generates chords from scale, inversion, spread, etc.
-
-```lua
-local chord = chord_lib.generate {
-  root = 48, scale = "minor", notes = 4,
-  reverse = 0, inversion = 1, spread = 1, key = "Eb"
-}
-```
-
----
-
-## Example: Chord + Loop Split
-
-```lua
-midi_cc = {
-  note_on = function(note, vel)
-    if note <= 59 then
-      local chord = chord_lib.generate { root = note, scale = "minor", notes = 4 }
-      for i, n in ipairs(chord) do if i > 1 then ctl.noteOn(n, vel) end end
-    else
-      loop.set_pattern { 0, 7, 10, 7 }
-      loop.start(note, vel, ctl.getStep())
-    end
-  end,
-  note_off = function(note)
-    ctl.noteOff(note)
-    loop.stop()
-  end
-}
-
-init = function()
-  master.set { tempo = 120 }
+  master.set { tempo = 120, gain = 0.8 }
   ctl.setupSequencer {
     resolution = 16,
     loopBars = 4,
-    metronome = true,
-    mute = false
+    swing = 0.2,
+    mute = false,
+    metronome = true
   }
 end
 ```
 
 ---
 
-## MIDI Controller Input (CC)
+## Step Sequencing
 
-Handled in:
+Define a global function to respond to step events.
 
 ```lua
-midi_cc = {
-  control = function(cc, value)
-    -- value: 0–127
-    if cc == 1 then  -- Mod wheel
-      print("Modulation: ", value)
-    end
+sequenser = function(step)
+  print("Step:", step)
+end
+```
+
+Step timing is controlled by `ctl.setupSequencer`.
+
+---
+
+## MIDI Input Handling
+
+### MIDI Maps
+
+MIDI CC and pitchbend input are mapped using `midi.map`.
+
+```lua
+midi = {
+  map = {
+    { cc = 20, val = 127, handler = ctl.savePreset },
+    { cc = 19, val = 127, handler = ctl.loadPreset },
+    { cc = 17, val = 127, handler = ctl.nextPreset },
+    { cc = 16, val = 127, handler = ctl.prevPreset },
+    { cc = 7, channel = 1, handler = function(val) ctl.pots[1] = val end }
+  },
+
+  noteOn = function(note, vel, chn)
+    ctl.noteOn(note, vel)
+  end,
+
+  noteOff = function(note, chn)
+    ctl.noteOff(note)
   end
 }
 ```
 
-Future plans:
+The `map` table entries accept:
 
-* `ctl.mapCC(cc, function)` for mapping callbacks directly
+| Field     | Type     | Description                   |
+| --------- | -------- | ----------------------------- |
+| `cc`      | number   | MIDI CC number (0–127)        |
+| `val`     | number   | Optional value match          |
+| `channel` | number   | Optional channel match (0–15) |
+| `handler` | function | Function to call on match     |
+
+If `handler` is missing or `nil`, the entry is skipped.
+
+---
+
+## ctl API
+
+| Function                  | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `ctl.noteOn(note, vel)`   | Trigger voice                                |
+| `ctl.noteOff(note)`       | Release voice                                |
+| `ctl.getStep()`           | Current step                                 |
+| `ctl.setupSequencer{...}` | Configure resolution, swing, metronome, mute |
+| `ctl.loadModule(name)`    | Load a JSON patch from `presets/`            |
+| `ctl.nextPreset()`        | Load next preset                             |
+| `ctl.prevPreset()`        | Load previous preset                         |
+| `ctl.savePreset()`        | Save live preset                             |
+| `ctl.loadPreset()`        | Load last saved live preset                  |
+
+---
+
+## JSON Modules
+
+```lua
+ctl.loadModule("010-deep_bass_poly")
+```
+
+This loads `presets/010-deep_bass_poly.json`.
+
+---
+
+## Sequencer Example
+
+```lua
+init = function()
+  ctl.setupSequencer {
+    resolution = 16,
+    loopBars = 8,
+    swing = 0.4,
+    mute = false,
+    metronome = true
+  }
+end
+
+sequenser = function(step)
+  print("At step", step)
+end
+```
 
 ---
 
 ## Tips
 
-* Use `ctl.getStep()` for quantized sequencing
-* Define `sequenser(step)` once globally in each script
-* Use `ctl.setupSequencer{}` for full control over step behavior
-* Modularize common logic into `scripts/*.lua`
-
----
-
-## Coming Soon
-
-* `ctl.sendMidi { type = "note_on", note = 60, velocity = 100, channel = 1 }`
-* `ctl.listMidiPorts()` and `ctl.setMidiOutPort()`
-* `ctl.mapCC()` and `ctl.setParam()` for real-time control
+* Define `midi.noteOn` and `midi.noteOff` for custom routing.
+* Use `midi.map` for dynamic controller mapping.
+* Configure everything in `init()`, only one sequencer is supported at once.
+* Use `ctl.getStep()` for step-aware control or quantization.
 
 ---
