@@ -48,57 +48,25 @@ Each preset JSON contains the following module types:
 ```json
 {
   "modules": {
-    "oscillator": [
-      {
-        "name": "OSC-1",
-        "type": "OscillatorType.Square",
-        "gain": 1,
-        "detune": 0,
-        "pan": 0
-      }
-    ],
-    "lfo": [
-      {
-        "name": "LFO-1",
-        "assignment": "LFOAssignment.OscPitch",
-        "target": "OSC-1",
-        "frequency": 2,
-        "depth": 0.5,
-        "waveform": "LFOWaveform.Sine"
-      }
-    ],
+    "oscillator": [],
+    "lfo": [],
     "envelope": {
       "attack": 0.1,
       "decay": 0.3,
       "sustain": 0.7,
       "release": 0.9
     },
-    "filter": [
-      {
-        "name": "FLT-1",
-        "type": "FilterType.LowPass",
-        "cutoff": 1000,
-        "resonance": 0.5
-      }
-    ],
-    "effect": [
-      {
-        "name": "FX-1",
-        "type": "EffectType.Distortion",
-        "mode": "DistortionType.Fuzz",
-        "mix": 0.8,
-        "rate": 2.0
-      }
-    ],
+    "filter": [],
+    "effect": [],
     "master": {
-      "gain": 1.0,
+      "gain": 1,
       "pan": 0,
       "pitch": 0,
       "tempo": 120,
-      "tremolo": 0.3,
+      "tremolo": 0,
       "glide": {
-        "time": 0.05,
-        "enabled": true
+        "time": 0,
+        "enabled": false
       }
     }
   }
