@@ -115,4 +115,3 @@ Each preset JSON contains the following module types:
 
 ---
 
-_Last updated for the JSON-only version of Mini-Moon Preset Editor._
