@@ -1,4 +1,4 @@
-# Lua Scripting Guide (Updated)
+# Lua Scripting Guide
 
 This guide covers scripting support for the synth engine, including real-time control, voice handling, step sequencing, modular patching, and live MIDI input.
 
