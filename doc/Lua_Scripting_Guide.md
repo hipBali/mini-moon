@@ -8,7 +8,7 @@ This guide covers scripting support for the synth engine, including real-time co
 
 * Each preset script can define `init()`, `midi_cc = {}` handlers.
 * Scripts are executed per preset load. Runtime behavior must be set up **in `init()` or at first MIDI input**.
-* `ctl.onStep(...)` can only be registered **after audio is running**.
+* Global `sequenser(step)` is automatically called during internal step sequencing.
 
 ---
 
@@ -21,7 +21,14 @@ Runs once when the preset is loaded.
 ```lua
 init = function()
   master.set { tempo = 120, gain = 1.0 }
-  ctl.onStep(my_step_handler)  -- Only register once
+  ctl.setupSequencer {
+    resolution = 16,
+    startBar = 1,
+    loopBars = 8,
+    swing = 0.0,
+    mute = false,
+    metronome = false
+  }
 end
 ```
 
@@ -49,14 +56,41 @@ midi_cc = {
 
 ## ctl API Overview
 
-| Function                          | Description                                     |
-| --------------------------------- | ----------------------------------------------- |
-| `ctl.noteOn(note, velocity)`      | Trigger internal voice (0–127)                  |
-| `ctl.noteOff(note)`               | Release note                                    |
-| `ctl.onStep(fn)`                  | Register step callback (once only!)             |
-| `ctl.getStep()`                   | Get current internal step counter               |
-| `ctl.loadModule(name)`            | Load JSON preset into `modules` table           |
-| `ctl.sendMidi(table)` *(planned)* | Send MIDI message out (note\_on, control, etc.) |
+| Function                            | Description                                                  |
+| ----------------------------------- | ------------------------------------------------------------ |
+| `ctl.noteOn(note, velocity)`        | Trigger internal voice (0–127)                               |
+| `ctl.noteOff(note)`                 | Release note                                                 |
+| `ctl.getStep()`                     | Get current internal step counter                            |
+| `ctl.setupSequencer{...}`          | Configure step resolution, loop, swing, mute, metronome      |
+| `ctl.loadModule(name)`             | Load JSON preset into `modules` table                        |
+| `ctl.isMuted()`                     | Query current mute state (if registered)                     |
+| `ctl.sendMidi(table)` *(planned)*  | Send MIDI message out (note_on, control, etc.)               |
+
+---
+
+## Sequencing with `sequenser(step)`
+
+Define a global function to receive step callbacks:
+
+```lua
+sequenser = function(step)
+  print("Step", step)
+end
+```
+
+This is automatically called based on the `setupSequencer` parameters. Example:
+
+```lua
+ctl.setupSequencer{
+  resolution = 16,
+  loopBars = 4,
+  swing = 0.5,
+  metronome = true,
+  mute = false
+}
+```
+
+Metronome clicks are played internally on bar boundaries and beats depending on configuration.
 
 ---
 
@@ -128,7 +162,12 @@ midi_cc = {
 
 init = function()
   master.set { tempo = 120 }
-  ctl.onStep(loop.process_step)
+  ctl.setupSequencer {
+    resolution = 16,
+    loopBars = 4,
+    metronome = true,
+    mute = false
+  }
 end
 ```
 
@@ -157,8 +196,9 @@ Future plans:
 
 ## Tips
 
-* Avoid re-registering `ctl.onStep` on each note
 * Use `ctl.getStep()` for quantized sequencing
+* Define `sequenser(step)` once globally in each script
+* Use `ctl.setupSequencer{}` for full control over step behavior
 * Modularize common logic into `scripts/*.lua`
 
 ---
