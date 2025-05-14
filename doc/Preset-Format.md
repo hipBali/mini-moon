@@ -221,7 +221,7 @@ modules = {
 | `pwm`        | float  | Pulse width for PWM type               |
 | `sync`       | bool   | Sync mode enabled                      |
 | `fm_amount`  | float  | Amount of frequency modulation input   |
-| `mod_source` | string | Modulation source name (e.g., `LFO-1`) |
+
 
 ### OscillatorType (enum)
 
@@ -229,8 +229,14 @@ modules = {
 * `Square`
 * `Saw`
 * `Triangle`
-* `PWM`
 * `Noise`
+* `SquarePWM`
+* `HyperSaw`
+* `ChaosNoise`
+* `FM`  *(special modulator-only oscillator, no output)*
+
+> `OscillatorType::FM` is used solely to supply FM input to other oscillators and is excluded from the final audio mix.
+
 
 ---
 
@@ -302,15 +308,10 @@ All effect entries share:
 ### DistortionType (enum)
 
 * `HardClip`
-* `SoftClip`
 * `Overdrive`
 * `Bitcrush`
-* `Foldback`
-* `SineFold`
-* `Tanh`
-* `AsymFold`
-* `HalfWave`
-* `FullWave`
+* `Fuzz`
+
 
 ---
 
