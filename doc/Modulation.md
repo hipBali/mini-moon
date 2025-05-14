@@ -44,7 +44,7 @@ To build a modulation matrix in Lua, define a `callback` table inside each LFO. 
 
 ```lua
 callback = {
-  interval = 16,  -- execution frequency (steps)
+  interval = 16,  -- execution frequency (frames)
   func = function(lfoName, value, target)
     effect.set{ name = target, mix = 0.5 + 0.5 * value }
   end
@@ -57,9 +57,50 @@ callback = {
 * `value` – current LFO output in range `[-1.0 .. 1.0]`
 * `target` – the `target` field defined in the LFO block
 
-This mechanism forms the basis of a programmable modulation matrix.
+> The `interval` defines how often (in frames) the callback is invoked. For example, `interval = 4` means the callback runs every 4 audio frames. Use higher values (e.g., 16–64) for smooth modulation.
 
-> Avoid redundancy: do not combine a standard assignment with a callback affecting the same parameter.
+---
+
+## Dynamic Envelope Modulation
+
+In addition to LFOs, Mini-Moon supports a single scriptable envelope generator: `dynamicEnvelope`.
+
+This envelope triggers automatically when the first `noteOn()` occurs, and runs while any notes are active.
+
+```lua
+dynamicEnvelope.set{
+  points = {
+    { t = 0.0, v = 0.0 },
+    { t = 0.1, v = 1.0 },
+    { t = 0.5, v = 0.8, mode = "log" },
+    { t = 1.0, v = 0.0, mode = "sine" }
+  },
+  callback = {
+    interval = 8,
+    loop = false,
+    func = function(value)
+      oscillator.set{ name = "OSC-1", pitch = -12 + value * 24 }
+    end
+  }
+}
+```
+
+### Point Modes
+
+Each envelope point can specify a `mode`:
+
+* `"linear"` (default)
+* `"exp"` – exponential ramp
+* `"log"` – logarithmic decay
+* `"sine"` – smooth curve
+
+Use `loop = true` to restart after the final point:
+
+```lua
+dynamicEnvelope.set{ loop = true, ... }
+```
+
+> The envelope runs from the moment of first note-on and stops when the last note-off occurs.
 
 ---
 
@@ -86,7 +127,7 @@ Each LFO can include a `target` field, used freely inside its callback:
 
 ---
 
-## Creative LFO Callback Ideas
+## Creative Modulation Ideas
 
 ### 1. Animated Effect Parameters
 
@@ -144,8 +185,6 @@ effect.set{ name = "Distortion", bitDepth = math.floor(4 + 4 * (1 - value)) }
 }
 ```
 
-Creates a breathing ping-pong effect where the stereo pan accelerates and decelerates.
-
 ### 5. Dynamic Target Routing
 
 ```lua
@@ -153,6 +192,18 @@ callback = {
   interval = 8,
   func = function(name, v)
     effect.set{ name = name, mix = 0.3 + 0.3 * v }
+  end
+}
+```
+
+### 6. Envelope-Controlled FM or Sync Sweep
+
+```lua
+callback = {
+  interval = 8,
+  func = function(value)
+    oscillator.set{ name = "OSC-2", fm_amount = value * 0.8 }
+    oscillator.set{ name = "OSC-1", phase = value }
   end
 }
 ```
@@ -169,8 +220,6 @@ if value > 0 then
   filter.set{ name = target, cutoff = 2000 + shaped * 1000 }
 end
 ```
-
-Great for adding soft curves, symmetry, or gated behaviors.
 
 ---
 
@@ -194,8 +243,6 @@ Great for adding soft curves, symmetry, or gated behaviors.
 
 > All modules support both `module.set{}` (live only) and `module.update{}` (live + preset).
 
-Example:
-
 ```lua
 lfo.set{ name = "LFO-1", depth = 0.5 }
 filter.update{ name = "LPF", cutoff = 1200 }
@@ -205,71 +252,30 @@ filter.update{ name = "LPF", cutoff = 1200 }
 
 ## Known Modulation Limitations
 
-While most parameters are modulateable in real time, a few are statically applied at note-on time and do not respond to live updates. Notable examples:
-
-* `oscillator.pan` → only applied during `noteOn()` (per-voice init)
-* `oscillator.gain` → voice gain is set at note start
-* Envelope parameters (`attack`, `release`, etc.) cannot be updated mid-note
-* Some filter/effect parameters may not support smooth automation depending on implementation
-
-For consistent real-time control, prefer modulating parameters on:
-
-* `master` (global)
-* `effect` (independent stereo/FX path)
-* `filter` (in many cases realtime-safe)
-
----
-
-## Known Limitations
-
 * Overlapping modulations to the same parameter from multiple LFOs may cause unpredictable results.
 * If a callback targets an invalid module name or parameter, the call may silently fail or be ignored.
 * Callback execution should be efficient — heavy logic in high-rate intervals (e.g. `interval = 1`) can affect timing.
 * Using both `assignment` and `callback` on the same parameter is **not recommended**.
-
----
-
-## Example: Dual LFO Setup
-
-```lua
-lfo = {
-  {
-    name = "VibratoLFO",
-    assignment = LFOAssignment.OscPitch,
-    frequency = 6.0,
-    depth = 0.02,
-    waveform = LFOWaveform.Sine
-  },
-  {
-    name = "ManualPanLFO",
-    assignment = LFOAssignment.None,
-    target = "FX-1",
-    frequency = 0.5,
-    depth = 1.0,
-    waveform = LFOWaveform.Triangle,
-    callback = {
-      interval = 32,
-      func = function(lfoName,v,target)
-        effect.set{ name = target, pan = v }
-      end
-    }
-  }
-}
-```
+* `oscillator.pan` and `oscillator.gain` are only applied per voice at `noteOn()`.
+* Envelope parameters cannot be changed mid-note.
 
 ---
 
 ## Summary
 
-| Feature            | Description                                    |
-| ------------------ | ---------------------------------------------- |
-| LFO assignment     | Built-in modulation path                       |
-| `callback.func()`  | Arbitrary modulation logic                     |
-| `target`           | Named module used in the callback              |
-| `interval`         | How often the callback executes (in steps)     |
-| Value range        | `[-1.0 .. 1.0]` LFO output                     |
-| Modulation shaping | Math, gating, logic supported in Lua           |
-| Dynamic access     | `.set` and `.update` supported for all modules |
-| Limitations        | Avoid redundant modulations or invalid targets |
+| Feature            | Description                                   |
+| ------------------ | --------------------------------------------- |
+| LFO assignment     | Built-in modulation path                      |
+| `callback.func()`  | Arbitrary modulation logic                    |
+| `target`           | Named module used in the callback             |
+| `interval`         | How often the callback executes (in frames)   |
+| `value` range      | `[-1.0 .. 1.0]` LFO output                    |
+| DynamicEnvelope    | Time-based one-shot or looping envelope       |
+| `points[]`         | Envelope curve points with optional `mode`    |
+| Modulation shaping | Math, logic, interpolation supported in Lua   |
+| Dynamic access     | `.set` (live), `.update` (live + preset)      |
+| Limitations        | Avoid redundancy and unsupported live targets |
 
-This system turns every LFO into a programmable modulation source — a true flexible matrix, defined in pure Lua.
+---
+
+This system turns every LFO and envelope into a programmable modulation source — a true flexible matrix, defined in pure Lua.
