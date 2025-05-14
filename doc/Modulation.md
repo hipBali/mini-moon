@@ -188,7 +188,7 @@ oscillator.set{ name = "OSC-1", pwm = 0.4 + 0.3 * value }
 ### 3. Combined Modulations
 
 ```lua
-oscillator.set{ name = "OSC-2", fm_amount = 0.2 + 0.2 * value }
+oscillator.set{ name = "OSC-2", fmAmount = 0.2 + 0.2 * value }
 effect.set{ name = "Distortion", bitDepth = math.floor(4 + 4 * (1 - value)) }
 ```
 
@@ -242,7 +242,7 @@ callback = {
 callback = {
   interval = 8,
   func = function(value)
-    oscillator.set{ name = "OSC-2", fm_amount = value * 0.8 }
+    oscillator.set{ name = "OSC-2", fmAmount = value * 0.8 }
     oscillator.set{ name = "OSC-1", phase = value }
   end
 }
@@ -267,7 +267,7 @@ end
 
 ### Oscillator
 
-* `mix`, `pwm`, `fm_amount`, `phase`, `pan`, `transpose`
+* `mix`, `pwm`, `fmAmount`, `phase`, `pan`, `transpose`
 
 ### Filter
 
