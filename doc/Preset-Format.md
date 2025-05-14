@@ -220,7 +220,7 @@ modules = {
 | `phase`      | float  | Start phase (0.0–1.0)                  |
 | `pwm`        | float  | Pulse width for PWM type               |
 | `sync`       | bool   | Sync mode enabled                      |
-| `fm_amount`  | float  | Amount of frequency modulation input   |
+| `fmAmount`   | float  | Amount of frequency modulation input   |
 
 
 ### OscillatorType (enum)
