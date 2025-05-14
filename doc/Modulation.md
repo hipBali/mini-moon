@@ -129,45 +129,33 @@ Each LFO can include a `target` field, used freely inside its callback:
 
 ## PWM Modulation (Pulse Width Modulation)
 
-Pulse Width Modulation (PWM) dynamically alters the duty cycle of square waveforms, producing a rich and evolving timbre. Mini-Moon supports PWM via both static and modulated parameters.
+PWM dynamically alters the duty cycle of square waveforms to produce evolving textures.
 
 ### Supported Oscillator Types
 
-- `OscillatorType.SquarePWM` – fully supports pulse width control
-- *(Other types ignore PWM parameters)*
+* `OscillatorType::SquarePWM`
 
 ### Modulation Targets
 
-- `pulseWidth` — direct control of duty cycle (0.0–1.0)
-- `pulseWidthMod` — LFO-based or internal modulation depth
+* `pulseWidth` — direct control of duty cycle (0.0–1.0, clamped internally to 0.01–0.99)
+* `pulseWidthMod` — per-oscillator modulation sensitivity (used with `LFOAssignment::OscPWM`)
 
-### Example: LFO-Modulated PWM
+### LFO Routing via Assignment
+
+Use `assignment = LFOAssignment.OscPWM` and (optionally) a `target` field to apply PWM to specific oscillators:
 
 ```lua
-oscillator = {
-  {
-    name = "PWM-1",
-    type = OscillatorType.SquarePWM,
-    gain = 1.0,
-    pulseWidth = 0.5
-  }
-}
-
-lfo = {
-  {
-    name = "PWM-LFO",
-    waveform = LFOWaveform.Sine,
-    frequency = 1.0,
-    depth = 1.0,
-    callback = {
-      interval = 8,
-      func = function(name, v)
-        oscillator.set{ name = "PWM-1", pulseWidth = 0.5 + 0.4 * v }
-      end
-    }
-  }
+{
+  name = "PWM-LFO",
+  waveform = LFOWaveform.Sine,
+  frequency = 1.0,
+  depth = 1.0,
+  assignment = LFOAssignment.OscPWM,
+  target = "PWM-1"  -- optional
 }
 ```
+
+If `target` is omitted, all `SquarePWM` oscillators receive the modulation.
 
 ---
 
