@@ -17,9 +17,14 @@ assignment = LFOAssignment.OscPitch
 * `None` (no built-in modulation)
 * `OscPitch`
 * `OscGain`
+* `OscPWM`
 * `FilterCutoff`
-* `EffectMix`
+* `FilterResonance`
 * `Pan`
+* `Gain`
+* `Pitch`
+* `Tremolo`
+* `EnvAttack`    
 
 > When using `None`, the LFO will not affect any signal path by default — perfect for custom scripting via callbacks.
 
