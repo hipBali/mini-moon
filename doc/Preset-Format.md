@@ -210,17 +210,19 @@ modules = {
 
 ## Oscillator Parameters
 
-| Parameter    | Type   | Description                            |
-| ------------ | ------ | -------------------------------------- |
-| `name`       | string | Display name of the oscillator         |
-| `type`       | enum   | See `OscillatorType` below             |
-| `transpose`  | number | Semitone offset                        |
-| `detune`     | number | Fine-tune in cents                     |
-| `mix`        | float  | Relative level (0.0–1.0)               |
-| `phase`      | float  | Start phase (0.0–1.0)                  |
-| `pwm`        | float  | Pulse width for PWM type               |
-| `sync`       | bool   | Sync mode enabled                      |
-| `fmAmount`   | float  | Amount of frequency modulation input   |
+| Parameter       | Type   | Description                                  |
+| --------------- | ------ | -------------------------------------------- |
+| `name`          | string | Display name of the oscillator         |
+| `type`          | enum   | See `OscillatorType` below             |
+| `transpose`     | number | Semitone offset                        |
+| `detune`        | number | Fine-tune in cents                     |
+| `mix`           | float  | Relative level (0.0–1.0)               |
+| `phase`         | float  | Start phase (0.0–1.0)                  |
+| `pwm`           | float  | Pulse width for PWM type               |
+| `sync`          | bool   | Sync mode enabled                      |
+| `fmAmount`      | float  | Amount of frequency modulation input   |
+| `pulseWidth`    | float  | Duty cycle for PWM (0.01–0.99 recommended)   |
+| `pulseWidthMod` | float  | Modulation sensitivity (0.0–1.0) for PWM     |
 
 
 ### OscillatorType (enum)
@@ -236,7 +238,7 @@ modules = {
 * `FM`  *(special modulator-only oscillator, no output)*
 
 > `OscillatorType::FM` is used solely to supply FM input to other oscillators and is excluded from the final audio mix.
-
+> `pulseWidthMod` is used in conjunction with `LFOAssignment::OscPWM` to control how strongly a given oscillator responds to LFO-based pulse width modulation.
 
 ---
 
