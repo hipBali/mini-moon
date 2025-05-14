@@ -167,7 +167,9 @@ lfo = {
     }
   }
 }
+```
 
+---
 
 ## Creative Modulation Ideas
 
@@ -177,7 +179,9 @@ lfo = {
 effect.set{ name = "Reverb", mix = 0.4 + 0.3 * value }
 effect.set{ name = "Flanger", delay = 0.5 + 1.0 * value }
 effect.set{ name = "Chorus", rate = 0.1 + 0.05 * value, depth = 0.2 + 0.3 * value }
+
 ```
+
 ---
 
 ### 2. Panning, Vibrato, Tremolo
