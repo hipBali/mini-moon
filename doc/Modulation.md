@@ -127,6 +127,48 @@ Each LFO can include a `target` field, used freely inside its callback:
 
 ---
 
+## PWM Modulation (Pulse Width Modulation)
+
+Pulse Width Modulation (PWM) dynamically alters the duty cycle of square waveforms, producing a rich and evolving timbre. Mini-Moon supports PWM via both static and modulated parameters.
+
+### Supported Oscillator Types
+
+- `OscillatorType.SquarePWM` – fully supports pulse width control
+- *(Other types ignore PWM parameters)*
+
+### Modulation Targets
+
+- `pulseWidth` — direct control of duty cycle (0.0–1.0)
+- `pulseWidthMod` — LFO-based or internal modulation depth
+
+### Example: LFO-Modulated PWM
+
+```lua
+oscillator = {
+  {
+    name = "PWM-1",
+    type = OscillatorType.SquarePWM,
+    gain = 1.0,
+    pulseWidth = 0.5
+  }
+}
+
+lfo = {
+  {
+    name = "PWM-LFO",
+    waveform = LFOWaveform.Sine,
+    frequency = 1.0,
+    depth = 1.0,
+    callback = {
+      interval = 8,
+      func = function(name, v)
+        oscillator.set{ name = "PWM-1", pulseWidth = 0.5 + 0.4 * v }
+      end
+    }
+  }
+}
+
+
 ## Creative Modulation Ideas
 
 ### 1. Animated Effect Parameters
@@ -136,6 +178,7 @@ effect.set{ name = "Reverb", mix = 0.4 + 0.3 * value }
 effect.set{ name = "Flanger", delay = 0.5 + 1.0 * value }
 effect.set{ name = "Chorus", rate = 0.1 + 0.05 * value, depth = 0.2 + 0.3 * value }
 ```
+---
 
 ### 2. Panning, Vibrato, Tremolo
 
