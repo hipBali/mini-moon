@@ -281,13 +281,6 @@ end
 
 * `gain`, `tempo`, `pan`
 
-> All modules support both `module.set{}` (live only) and `module.update{}` (live + preset).
-
-```lua
-lfo.set{ name = "LFO-1", depth = 0.5 }
-filter.update{ name = "LPF", cutoff = 1200 }
-```
-
 ---
 
 ## Known Modulation Limitations
